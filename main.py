@@ -66,6 +66,8 @@ def reuslts(message, res=False):
                 bot.reply_to(message, winner_message(winner.telegram_username))
             else:
                 bot.reply_to(message, "Никто не учавствует в конкурсе")
+        else:
+            bot.reply_to(message, winner_message(winner.telegram_username))
 
     else:
         bot.reply_to(
@@ -128,7 +130,7 @@ def handle_text(message):
             answer = "Успешно зарегестрирован!"
     elif message.text.strip() == "Условия":
         answer = "Условия конкурса"
-    bot.reply_to(message, answer)
+    bot.reply_to(message, answer, reply_markup= None)
 
 
 def main():

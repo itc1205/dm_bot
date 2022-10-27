@@ -58,10 +58,14 @@ def reuslts(message, res=False):
             users = []
             for user in db_sess.query(User):
                 users.append(user)
-            winner = rand.choice(users)
-            winner.won = True
-            db_sess.commit()
-        bot.reply_to(message, winner_message(winner.telegram_username))
+            if len(users) != 0:
+
+                new_winner = rand.choice(users)
+                new_winner.won = True
+                db_sess.commit()
+                bot.reply_to(message, winner_message(winner.telegram_username))
+            else:
+                bot.reply_to(message, "Никто не учавствует в конкурсе")
 
     else:
         bot.reply_to(
@@ -78,15 +82,18 @@ def re_elect(message, res=False):
         if winner:
             winner.won = False
             db_sess.commit()
-            
+
             users = []
             for user in db_sess.query(User):
                 users.append(user)
-            new_winner = rand.choice(users)
-            new_winner.won = True
-            db_sess.commit()
-            
-            bot.reply_to(message, winner_message(winner.telegram_username))
+            if len(users) != 0:
+
+                new_winner = rand.choice(users)
+                new_winner.won = True
+                db_sess.commit()
+                bot.reply_to(message, winner_message(winner.telegram_username))
+            else:
+                bot.reply_to(message, "Никто не учавствует в конкурсе")
         else:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item1 = types.KeyboardButton("/results")
@@ -94,7 +101,7 @@ def re_elect(message, res=False):
             bot.reply_to(
                 message,
                 "Победитель не определен. Для определения победителя напишите /results",
-                reply_markup=markup
+                reply_markup=markup,
             )
     else:
         bot.reply_to(

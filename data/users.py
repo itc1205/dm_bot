@@ -11,3 +11,4 @@ class User(SqlAlchemyBase):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     telegram_username = sqlalchemy.Column(sqlalchemy.String)
+    won = sqlalchemy.Column(sqlalchemy.Boolean)

@@ -34,7 +34,7 @@ def start(message, res=False):
     markup.add(item2)
     bot.reply_to(
         message,
-        "Нажми: \nРегистрация: для того что бы зарегестрироваться в конкурсе\nУсловия — для того что бы вывести условия конкурса ",
+        "Нажми: \nРегистрация - для того что бы зарегестрироваться в конкурсе\nУсловия — для того что бы вывести условия конкурса ",
         reply_markup=markup,
     )
 
@@ -43,7 +43,7 @@ def start(message, res=False):
 def reuslts(message, res=False):
     if admin_check(message.from_user.username):
         db_sess = db_session.create_session()
-        winner = db_sess.query(User).filter(User.winner).first()
+        winner = db_sess.query(User).filter(User.won).first()
         if not winner:
             users = []
             for user in db_sess.query(User):

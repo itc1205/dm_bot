@@ -63,7 +63,7 @@ def reuslts(message, res=False):
                 new_winner = rand.choice(users)
                 new_winner.won = True
                 db_sess.commit()
-                bot.reply_to(message, winner_message(winner.telegram_username))
+                bot.reply_to(message, winner_message(new_winner.telegram_username))
             else:
                 bot.reply_to(message, "Никто не учавствует в конкурсе")
         else:

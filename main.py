@@ -21,6 +21,10 @@ TOKEN = os.getenv("TOKEN")
 bot = telebot.TeleBot(TOKEN, parse_mode=None)
 
 
+def winner_message(winner_tg: str) -> str:
+    return f"Поздравляем {winner_tg} с его победой!"
+
+
 def admin_check(user: str) -> bool:
     return user in ADMINS
 
@@ -32,6 +36,12 @@ def start(message, res=False):
     item2 = types.KeyboardButton("Условия")
     markup.add(item1)
     markup.add(item2)
+    if admin_check(message.from_user.username):
+        item3 = types.KeyboardButton("/results")
+        markup.add(item3)
+        item4 = types.KeyboardButton("/re_elect")
+        markup.add(item4)
+
     bot.reply_to(
         message,
         "Нажми: \nРегистрация - для того что бы зарегестрироваться в конкурсе\nУсловия — для того что бы вывести условия конкурса ",
@@ -43,15 +53,49 @@ def start(message, res=False):
 def reuslts(message, res=False):
     if admin_check(message.from_user.username):
         db_sess = db_session.create_session()
-        winner = db_sess.query(User).filter(User.won).first()
+        winner = db_sess.query(User).filter(User.won == True).first()
         if not winner:
             users = []
             for user in db_sess.query(User):
-                users.append(user.telegram_username)
+                users.append(user)
             winner = rand.choice(users)
             winner.won = True
-        bot.reply_to(message, winner)
+            db_sess.commit()
+        bot.reply_to(message, winner_message(winner.telegram_username))
 
+    else:
+        bot.reply_to(
+            message, f"Для вас {message.from_user.username} данная функция недоступна"
+        )
+
+
+@bot.message_handler(commands=["re_elect"])
+def re_elect(message, res=False):
+    if admin_check(message.from_user.username):
+        db_sess = db_session.create_session()
+        winner = db_sess.query(User).filter(User.won == True).first()
+
+        if winner:
+            winner.won = False
+            db_sess.commit()
+            
+            users = []
+            for user in db_sess.query(User):
+                users.append(user)
+            new_winner = rand.choice(users)
+            new_winner.won = True
+            db_sess.commit()
+            
+            bot.reply_to(message, winner_message(winner.telegram_username))
+        else:
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            item1 = types.KeyboardButton("/results")
+            markup.add(item1)
+            bot.reply_to(
+                message,
+                "Победитель не определен. Для определения победителя напишите /results",
+                reply_markup=markup
+            )
     else:
         bot.reply_to(
             message, f"Для вас {message.from_user.username} данная функция недоступна"

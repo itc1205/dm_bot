@@ -12,9 +12,14 @@ from data.users import User
 
 load_dotenv()
 
-ADMINS = [
-    i.strip() for i in os.getenv("ADMINS").split(",")
-]  # please write admin names in env settings like (example, example2)
+try:
+    ADMINS = [
+        i.strip() for i in os.getenv("ADMINS").split(",")
+    ]  # please write admin names in .env file (like example, example2)
+except AttributeError as e:
+    print("The .env file is not found!")
+    exit(1)
+
 
 TOKEN = os.getenv("TOKEN")
 
@@ -31,20 +36,21 @@ def admin_check(user: str) -> bool:
 
 @bot.message_handler(commands=["start"])
 def start(message, res=False):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("Регистрация")
-    item2 = types.KeyboardButton("Условия")
+    markup = types.InlineKeyboardMarkup(resize_keyboard=True)
+    item1 = types.InlineKeyboardButton("Регистрация")
+    item2 = types.InlineKeyboardButton("Условия")
     markup.add(item1)
     markup.add(item2)
     if admin_check(message.from_user.username):
-        item3 = types.KeyboardButton("/results")
+        item3 = types.InlineKeyboardButton("/results")
         markup.add(item3)
-        item4 = types.KeyboardButton("/re_elect")
+        item4 = types.InlineKeyboardButton("/re_elect")
         markup.add(item4)
 
     bot.reply_to(
         message,
-        "Нажми: \nРегистрация - для того что бы зарегестрироваться в конкурсе\nУсловия — для того что бы вывести условия конкурса ",
+        "Нажми: \nРегистрация - для того что бы зарегестрироваться в конкурсе\n"
+        "Условия — для того что бы вывести условия конкурса ",
         reply_markup=markup,
     )
 
@@ -56,14 +62,16 @@ def reuslts(message, res=False):
         winner = db_sess.query(User).filter(User.won == True).first()
         if not winner:
             users = []
+
             for user in db_sess.query(User):
                 users.append(user)
-            if len(users) != 0:
 
+            if len(users) != 0:
                 new_winner = rand.choice(users)
                 new_winner.won = True
                 db_sess.commit()
-                bot.reply_to(message, winner_message(new_winner.telegram_username))
+                bot.reply_to(message, winner_message(
+                    new_winner.telegram_username))
             else:
                 bot.reply_to(message, "Никто не учавствует в конкурсе")
         else:
@@ -130,7 +138,7 @@ def handle_text(message):
             answer = "Успешно зарегестрирован!"
     elif message.text.strip() == "Условия":
         answer = "Условия конкурса"
-    bot.reply_to(message, answer, reply_markup= None)
+    bot.reply_to(message, answer, reply_markup=None)
 
 
 def main():

@@ -36,7 +36,7 @@ def admin_check(user: str) -> bool:
 
 @bot.message_handler(commands=["start"])
 def start(message, res=False):
-    markup = types.InlineKeyboardMarkup(resize_keyboard=True)
+    markup = types.InlineKeyboardMarkup()
     item1 = types.InlineKeyboardButton("Регистрация")
     item2 = types.InlineKeyboardButton("Условия")
     markup.add(item1)
